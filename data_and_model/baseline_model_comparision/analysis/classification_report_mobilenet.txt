@@ -1,0 +1,10 @@
+              precision    recall  f1-score   support
+
+        acne       0.91      0.96      0.93        67
+         dry       0.95      0.88      0.91        60
+      normal       0.95      1.00      0.97        72
+        oily       0.96      0.91      0.93        54
+
+    accuracy                           0.94       253
+   macro avg       0.94      0.94      0.94       253
+weighted avg       0.94      0.94      0.94       253

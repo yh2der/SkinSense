@@ -4,7 +4,6 @@ import os
 import numpy as np
 import glob
 import logging
-import random
 
 # 設置logging
 logging.getLogger('tensorflow').setLevel(logging.ERROR)

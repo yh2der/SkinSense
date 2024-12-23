@@ -1,34 +1,133 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
 .container {
     max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    text-align: center;
+    width: 100%;
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    color: #2c3e50;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-weight: 600;
 }
 
 .upload-section {
-    margin: 20px 0;
+    margin: 30px 0;
 }
 
-.preview-section img {
-    max-width: 400px;
-    margin: 20px auto;
+.file-input-container {
+    position: relative;
+    margin-bottom: 20px;
 }
 
-.result-section {
-    margin: 20px 0;
-    font-size: 1.2em;
+#image-input {
+    display: none;
+}
+
+.custom-file-upload {
+    display: inline-block;
+    padding: 15px 30px;
+    background: #f0f2f5;
+    border: 2px dashed #cbd5e0;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #4a5568;
+    transition: all 0.3s ease;
+    margin-bottom: 20px;
+}
+
+.custom-file-upload:hover {
+    background: #e2e8f0;
+    border-color: #4a5568;
 }
 
 button {
-    padding: 10px 20px;
+    padding: 15px 40px;
     font-size: 1.1em;
     cursor: pointer;
-    background-color: #4CAF50;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: 10px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 10px;
 }
 
 button:hover {
-    background-color: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+#download-btn {
+    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+    display: none;
+}
+
+.preview-section {
+    margin: 30px 0;
+}
+
+#preview-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.result-section {
+    margin: 30px 0;
+    padding: 20px;
+    background: #f8fafc;
+    border-radius: 15px;
+}
+
+.result-section p {
+    font-size: 1.2em;
+    color: #2d3748;
+    margin: 10px 0;
+    line-height: 1.6;
+}
+
+#confidence {
+    color: #4a5568;
+    font-weight: 500;
+}
+
+@media (max-width: 600px) {
+    .container {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2em;
+    }
+
+    button {
+        padding: 12px 30px;
+        margin: 5px;
+    }
 }

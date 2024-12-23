@@ -3,9 +3,6 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
-import io
-import os
-
 from data_and_model.models.model import SkinClassifier
 
 app = Flask(__name__)

@@ -172,68 +172,142 @@
         async function generatePDF() {
             const { jsPDF } = window.jspdf;
             
-            // 創建一個臨時的 canvas 來渲染中文文字
+            // 創建一個臨時的 canvas
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = 595.28;  // A4 寬度 (72 dpi)
             canvas.height = 841.89;  // A4 高度 (72 dpi)
             
-            // 設置 canvas 背景
+            // 設置白色背景
             ctx.fillStyle = 'white';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 設置文字樣式
+            // 設置標題
             ctx.fillStyle = 'black';
-            ctx.font = '20px sans-serif';
+            ctx.font = 'bold 24px sans-serif';  // 加大標題字體
             ctx.textAlign = 'center';
+            ctx.fillText('肌膚分析報告', canvas.width/2, 50);
             
-            // 繪製標題
-            ctx.fillText('SkinSense 分析報告', canvas.width/2, 50);
-            
-            // 設置較小的字體大小
-            ctx.font = '14px sans-serif';
+            // 重置文本對齊
             ctx.textAlign = 'left';
             
-            // 繪製分析結果
+            // 初始化 y 座標，增加標題後的間距
+            let y = 80;
+
+            // 添加分析日期
             const date = new Date().toLocaleDateString('zh-TW');
-            ctx.fillText('分析日期: ' + date, 40, 100);
-            ctx.fillText('預測結果: ' + currentPrediction, 40, 130);
-            ctx.fillText('準確度: ' + currentConfidence + '%', 40, 160);
-            
-            // 繪製建議（處理換行）
-            const recommendation = '專業建議: ' + currentRecommendation;
-            const words = recommendation.split('');
-            let line = '';
-            let y = 200;
-            for (let i = 0; i < words.length; i++) {
-                const testLine = line + words[i];
-                if (testLine.length * 14 > canvas.width - 80) {
-                    ctx.fillText(line, 40, y);
-                    line = words[i];
-                    y += 25;
-                } else {
-                    line = testLine;
+            ctx.font = '14px sans-serif';
+            ctx.fillText('分析日期：' + date, 40, y);
+            y += 30;  // 日期與圖片之間的間距
+
+            // 添加上傳的圖片
+            const img = document.getElementById('preview-image');
+            if (img && img.style.display !== 'none') {
+                try {
+                    await new Promise((resolve, reject) => {
+                        if (img.complete) {
+                            resolve();
+                        } else {
+                            img.onload = resolve;
+                            img.onerror = reject;
+                        }
+                    });
+                    
+                    const maxWidth = 350;  // 稍微縮小圖片寬度
+                    const maxHeight = 250;  // 稍微縮小圖片高度
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    // 調整圖片大小保持比例
+                    if (width > maxWidth) {
+                        height = height * (maxWidth / width);
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = width * (maxHeight / height);
+                        height = maxHeight;
+                    }
+                    
+                    // 將圖片置中
+                    const x = (canvas.width - width) / 2;
+                    ctx.drawImage(img, x, y, width, height);
+                    y += height + 30;  // 調整圖片後的間距
+                } catch (error) {
+                    console.error('Error loading image:', error);
                 }
             }
-            ctx.fillText(line, 40, y);
+
+            // 添加準確度信息
+            ctx.font = '14px sans-serif';
+            ctx.fillText('準確度：' + currentConfidence + '%', 40, y);
+            y += 40;  // 增加準確度後的間距
             
-            // 添加圖片
-            const img = document.getElementById('preview-image');
-            if (img.style.display !== 'none') {
-                ctx.drawImage(img, 40, y + 30, 400, 300);
+            // 獲取推薦內容
+            const recommendationText = currentRecommendation;
+            if (recommendationText) {
+                const lines = recommendationText.split('\n');
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line) continue;
+                    
+                    if (line.startsWith('您的膚質類型')) {
+                        ctx.font = 'bold 18px sans-serif';  // 加大膚質類型字體
+                        ctx.fillText(line, 40, y);
+                        y += 35;  // 調整膚質類型後的間距
+                    } 
+                    else if (line === '推薦成分：' || line === '保養建議：') {
+                        y += 15;  // 增加標題前的間距
+                        ctx.font = 'bold 16px sans-serif';
+                        ctx.fillText(line, 40, y);
+                        y += 25;  // 調整標題後的間距
+                    }
+                    else if (line.startsWith('•')) {
+                        ctx.font = '14px sans-serif';
+                        
+                        // 處理長文字換行
+                        const maxWidth = canvas.width - 120;  // 增加左右邊距
+                        let words = line;
+                        let currentLine = '';
+                        let charIndex = 0;
+                        
+                        while (charIndex < words.length) {
+                            let testLine = currentLine + words[charIndex];
+                            let metrics = ctx.measureText(testLine);
+                            
+                            if (metrics.width > maxWidth) {
+                                ctx.fillText(currentLine, 60, y);
+                                y += 22;  // 微調行間距
+                                currentLine = words[charIndex];
+                            } else {
+                                currentLine = testLine;
+                            }
+                            charIndex++;
+                        }
+                        
+                        if (currentLine) {
+                            ctx.fillText(currentLine, 60, y);
+                            y += 22;  // 保持一致的行間距
+                        }
+                    }
+                }
             }
-            
-            // 添加注意事項
+
+            // 添加注意事項（移到底部固定位置）
             ctx.font = '12px sans-serif';
-            ctx.fillText('注意事項：本報告僅供參考，若有疑慮請諮詢專業醫師。', 40, canvas.height - 50);
+            ctx.fillStyle = '#666666';
+            ctx.fillText('※ 本報告僅供參考，如有特殊症狀請諮詢專業醫師。', 40, canvas.height - 40);
             
-            // 將 canvas 轉換為圖片並創建 PDF
-            const imgData = canvas.toDataURL('image/jpeg', 1.0);
-            const pdf = new jsPDF();
-            pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
-            
-            // 下載PDF
-            pdf.save('SkinSense分析報告.pdf');
+            // 創建PDF
+            try {
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                const pdf = new jsPDF();
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
+                pdf.save('肌膚分析報告.pdf');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('生成PDF時發生錯誤，請稍後再試。');
+            }
         }
     </script>
 </body>

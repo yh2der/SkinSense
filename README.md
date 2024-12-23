@@ -75,6 +75,6 @@ pip install -r requirements.txt
 
 ### 進行分析並且提供結果下載成 PDF
 
+![alt text](/demo_pics/image-2.png)
 ![alt text](/demo_pics/image-3.png)
-![alt text](/demo_pics/image-4.png)
 

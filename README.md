@@ -35,7 +35,7 @@ pip install -r requirements.txt
     python app.py
     ```
 
-2. 開啟瀏覽器訪問：http://localhost:5000
+2. 開啟瀏覽器訪問：http://127.0.0.1:5000
 
 3. 使用步驟：
     - 點擊「上傳圖片」按鈕選擇要分析的臉部照片
@@ -70,10 +70,11 @@ pip install -r requirements.txt
 ## Demo
 ### 選擇您的臉部照片
 
-![alt text](image.png)
-![alt text](image-1.png)
+![alt text](/demo_pics/image.png)
+![alt text](/demo_pics/image-1.png)
 
 ### 進行分析並且提供結果下載成 PDF
 
-![alt text](image-2.png)
+![alt text](/demo_pics/image-3.png)
+![alt text](/demo_pics/image-4.png)
 

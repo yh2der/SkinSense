@@ -28,7 +28,7 @@
         <div class="result-section">
             <p id="result"></p>
             <p id="confidence"></p>
-            <p id="recommendation"></p>
+            <p id="recommendation" class="recommendation-text"></p>
         </div>
     </div>
 
@@ -90,11 +90,83 @@
 
         function getRecommendation(prediction) {
             const recommendations = {
-                '正常': '您的皮膚狀況良好，請繼續保持目前的護理習慣。建議：\n1. 持續防曬\n2. 保持充足睡眠\n3. 均衡飲食',
-                '濕疹': '建議尋求皮膚科醫生的專業建議。建議：\n1. 避免搔抓\n2. 保持皮膚濕潤\n3. 穿著棉質衣物',
-                '黑斑': '建議使用防曬產品和美白保養品。建議：\n1. 加強防曬\n2. 使用美白產品\n3. 避免過度日曬',
+                'acne': {
+                    label: "痘痘肌",
+                    recommended_ingredients: [
+                        "水楊酸（Salicylic Acid）",
+                        "過氧化苯（Benzoyl Peroxide）",
+                        "杜鵑花酸（Azelaic Acid）",
+                        "維他命 B3（Niacinamide）",
+                        "茶樹精油（Tea Tree Oil）"
+                    ],
+                    additional_care: [
+                        "避免過度清潔：每天清潔 1～2 次即可，減少皮膚屏障受損。",
+                        "選用溫和無皂基潔面產品，減少皮膚乾燥與泛紅。",
+                        "盡量選擇清爽、不阻塞毛孔（non-comedogenic）的護膚品或化妝品。"
+                    ]
+                },
+                'dry': {
+                    label: "乾性肌膚",
+                    recommended_ingredients: [
+                        "玻尿酸（Hyaluronic Acid）",
+                        "神經醯胺（Ceramide）",
+                        "鯊烯（Squalane）",
+                        "乳木果油（Shea Butter）",
+                        "維他命原 B5（Panthenol）"
+                    ],
+                    additional_care: [
+                        "使用溫和的清潔產品，避免過熱或過度清潔造成皮脂流失。",
+                        "每次洗澡後立刻擦上保溼乳霜，鎖住水分。",
+                        "夜間可使用滋潤型面霜或油類，加強保護力。"
+                    ]
+                },
+                'normal': {
+                    label: "中性肌膚",
+                    recommended_ingredients: [
+                        "維他命 B3（Niacinamide）",
+                        "維他命 C（Vitamin C）",
+                        "玻尿酸（Hyaluronic Acid）",
+                        "溫和型酸類（乳酸 Lactic Acid 等）",
+                        "舒緩型植萃（蘆薈、洋甘菊等）"
+                    ],
+                    additional_care: [
+                        "維持清潔與保濕的基本步驟即可，避免過度刺激。",
+                        "防曬仍是關鍵，可預防光老化與斑點產生。",
+                        "一週 1～2 次適度去角質，讓膚質維持光滑。"
+                    ]
+                },
+                'oily': {
+                    label: "油性肌膚",
+                    recommended_ingredients: [
+                        "維他命 B3（Niacinamide）",
+                        "水楊酸（Salicylic Acid）",
+                        "AHA/BHA（果酸/水楊酸等）",
+                        "高嶺土或黏土成分（Clay）",
+                        "綠茶精華（Green Tea Extract）"
+                    ],
+                    additional_care: [
+                        "選用清爽型保濕或凝膠狀保養品，避免高油量配方。",
+                        "清潔時可使用具控油功能的潔面產品，但避免過度清潔。",
+                        "防曬建議選擇輕盈、不易致粉刺的配方。"
+                    ]
+                }
             };
-            return recommendations[prediction] || '建議諮詢專業醫生進行進一步診斷。';
+
+            const rec = recommendations[prediction];
+            if (!rec) return '建議諮詢專業醫生進行進一步診斷。';
+
+            let result = `\n您的膚質類型：${rec.label}\n\n`;
+            result += "推薦成分：\n";
+            rec.recommended_ingredients.forEach(ingredient => {
+                result += `• ${ingredient}\n`;
+            });
+            
+            result += "\n保養建議：\n";
+            rec.additional_care.forEach(care => {
+                result += `• ${care}\n`;
+            });
+
+            return result;
         }
 
         async function generatePDF() {

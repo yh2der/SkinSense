@@ -52,23 +52,28 @@ pip install -r requirements.txt
 
 利用預訓練模型 ResNet18、efficientNetB0、mobileNetV2，並且先比較這三種 baseline 效能，選擇方式是因為資料量不大，因此選擇參數量較小的模型來測試
 
+#### [結果報告](/data_and_model/current_best/classification_report.txt)
+
 ![alt](/data_and_model/baseline_model_comparision/analysis/training_curves_efficientnet.png)
 ![alt](/data_and_model/baseline_model_comparision/analysis/training_curves_mobilenet.png)
 ![alt](/data_and_model/baseline_model_comparision/analysis/training_curves_resnet18.png)
-![alt](/data_and_model/current_best/classification_report.txt)
+
+![alt](/data_and_model/baseline_model_comparision/analysis/confusion_matrix_efficientnet.png)
+![alt](/data_and_model/baseline_model_comparision/analysis/confusion_matrix_mobilenet.png)
+![alt](/data_and_model/baseline_model_comparision/analysis/confusion_matrix_resnet18.png)
+
+### chosen model
+#### [結果報告](/data_and_model/current_best/classification_report.txt)
 ![alt](/data_and_model/current_best/training_curves_mob.png)
 ![alt](/data_and_model/current_best/confusion_matrix_mob.png)
 
-### chosen model
-![alt](/data_and_model/current_best/classification_report.txt)
-![alt](/data_and_model/current_best/training_curves_mob.png)
-![alt](/data_and_model/current_best/training_curves_mob.png)
-
 ## Demo
 ### 選擇您的臉部照片
+
 ![alt text](image.png)
 ![alt text](image-1.png)
 
 ### 進行分析並且提供結果下載成 PDF
+
 ![alt text](image-2.png)
 

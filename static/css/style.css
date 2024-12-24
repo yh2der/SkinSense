@@ -1,139 +1,196 @@
-* {
+/* 通用樣式 */
+body {
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    background: linear-gradient(135deg, #ffd89b, #fcb69f);
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-body {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    color: #4e342e;
+    line-height: 1.6;
 }
 
 .container {
-    max-width: 800px;
-    width: 100%;
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 20px;
 }
 
+/* 標題樣式 */
 h1 {
-    color: #2c3e50;
-    font-size: 2.5em;
-    margin-bottom: 30px;
+    text-align: center;
+    color: #ffffff;
+    font-size: 2.8rem;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    font-weight: 600;
+    background: linear-gradient(135deg, #ffcc99, #ffb380); /* 淺橘色 */
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
+/* 上傳區塊 */
 .upload-section {
-    margin: 30px 0;
+    background: linear-gradient(135deg, #ffe6cc, #ffcc99);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    padding: 30px;
+    margin-bottom: 50px;
+    text-align: center;
 }
 
-.file-input-container {
-    position: relative;
-    margin-bottom: 20px;
-}
-
-#image-input {
-    display: none;
+.upload-section .file-input-container {
+    margin-bottom: 25px;
+    text-align: center;
 }
 
 .custom-file-upload {
     display: inline-block;
-    padding: 15px 30px;
-    background: #f0f2f5;
-    border: 2px dashed #cbd5e0;
-    border-radius: 10px;
+    padding: 12px 25px;
+    background-color: #ff8c42;
+    color: #fff;
+    font-weight: bold;
+    border-radius: 8px;
     cursor: pointer;
-    color: #4a5568;
-    transition: all 0.3s ease;
-    margin-bottom: 20px;
+    transition: background-color 0.3s ease;
+    font-size: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .custom-file-upload:hover {
-    background: #e2e8f0;
-    border-color: #4a5568;
+    background-color: #e67e22;
 }
 
-button {
-    padding: 15px 40px;
-    font-size: 1.1em;
-    cursor: pointer;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin: 0 10px;
-}
-
-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-#download-btn {
-    background: linear-gradient(135deg, #34d399 0%, #059669 100%);
+input[type="file"] {
     display: none;
 }
 
+.price-input-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+input[type="number"] {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e0a06b;
+    width: 48%;
+    font-size: 1rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input[type="number"]:focus {
+    border-color: #ff6f61;
+    box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
+    outline: none;
+}
+
+/* 按鈕樣式 */
+button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #ff7043;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    width: auto; /* 按鈕寬度調整為自適應內容 */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+}
+
+button:hover {
+    background-color: #f4511e;
+    transform: translateY(-2px);
+}
+
+button[type="button"] {
+    background-color: #ff7043;
+}
+
+button[type="button"]:hover {
+    background-color: #f4511e;
+}
+
+/* 給不同按鈕設置背景顏色 */
+button.secondary {
+    background-color: #e64a19;
+}
+
+button.secondary:hover {
+    background-color: #d84315;
+}
+
+/* 預覽圖片區 */
 .preview-section {
-    margin: 30px 0;
+    text-align: center;
+    margin-bottom: 40px;
+    background: linear-gradient(135deg, #ffe6cc, #ffcc99); /* 調整為淺橘色 */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    color: #4e342e;
 }
 
 #preview-image {
+    display: block;
+    margin: 0 auto;
     max-width: 100%;
-    height: auto;
-    border-radius: 15px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    max-height: 300px;
+    margin-top: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+/* 結果區塊 */
 .result-section {
-    margin: 30px 0;
-    padding: 20px;
-    background: #f8fafc;
-    border-radius: 15px;
+    background: linear-gradient(135deg, #fff2e6, #ffe6cc); /* 更淺的橘色 */
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    text-align: center;
 }
 
 .result-section p {
-    font-size: 1.2em;
-    color: #2d3748;
-    margin: 10px 0;
-    line-height: 1.6;
+    font-size: 1.2rem;
+    margin: 15px 0;
+    color: #4e342e;
 }
 
-#confidence {
-    color: #4a5568;
-    font-weight: 500;
+#recommendation {
+    white-space: pre-wrap;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4e342e;
+    text-align: left;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f8c8a3, #eac5b1);
 }
 
-.recommendation-text {
-    white-space: pre-line;
-    line-height: 1.6;
-    margin: 1rem 0;
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 20px;
+/* 響應式設計 */
+@media screen and (max-width: 768px) {
+    .price-input-container {
+        flex-direction: column;
+        align-items: center;
     }
 
-    h1 {
-        font-size: 2em;
+    input[type="number"] {
+        width: 90%;
+        margin-bottom: 10px;
     }
 
     button {
-        padding: 12px 30px;
-        margin: 5px;
+        width: auto;
+    }
+
+    h1 {
+        font-size: 2.2rem;
     }
 }

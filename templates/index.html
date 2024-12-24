@@ -18,9 +18,19 @@
                     </label>
                     <input type="file" id="image-input" accept="image/*">
                 </div>
+                <div class="price-input-container">
+                    <label for="min-price">最低價錢：</label>
+                    <input type="number" id="min-price" placeholder="0">
+
+                    <label for="max-price">最高價錢：</label>
+                    <input type="number" id="max-price" placeholder="10000">
+                </div>
                 <button type="submit">開始分析</button>
-                <button type="button" id="download-btn" onclick="generatePDF()">下載報告</button>
             </form>
+            <button type="button" id="recommend-btn" style="display: none;">推薦產品</button>
+            <button type="button" id="download-btn" style="display: none;" onclick="generatePDF()">下載報告</button>
+            <button type="button" id="refresh-btn">重整頁面</button>
+
         </div>
         <div class="preview-section">
             <img id="preview-image" style="display: none;">
@@ -28,7 +38,7 @@
         <div class="result-section">
             <p id="result"></p>
             <p id="confidence"></p>
-            <p id="recommendation" class="recommendation-text"></p>
+            <p id="recommendation" style="display: none;"></p>
         </div>
     </div>
 
@@ -40,7 +50,20 @@
             const fontData = await response.arrayBuffer();
             return fontData;
         }
+        document.getElementById('refresh-btn').onclick = function() {
+            location.reload(); // 重整頁面
+        };
 
+        document.getElementById('image-input').onchange = function(e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = document.getElementById('preview-image');
+                img.src = e.target.result;
+                img.style.display = 'block';
+            }
+            reader.readAsDataURL(file);
+        };
         document.getElementById('image-input').onchange = function(e) {
             const file = e.target.files[0];
             const reader = new FileReader();
@@ -55,12 +78,18 @@
         let currentPrediction = '';
         let currentConfidence = '';
         let currentRecommendation = '';
+        let productRecommendations = '';
 
         document.getElementById('upload-form').onsubmit = function(e) {
             e.preventDefault();
             const formData = new FormData();
             const imageFile = document.getElementById('image-input').files[0];
+            const minPrice = document.getElementById('min-price').value;
+            const maxPrice = document.getElementById('max-price').value;
+
             formData.append('image', imageFile);
+            if (minPrice) formData.append('min_price', minPrice);
+            if (maxPrice) formData.append('max_price', maxPrice);
 
             fetch('/predict', {
                 method: 'POST',
@@ -70,22 +99,36 @@
             .then(data => {
                 if (data.error) {
                     document.getElementById('result').textContent = '錯誤: ' + data.error;
+                    document.getElementById('recommend-btn').style.display = 'none';
                     document.getElementById('download-btn').style.display = 'none';
                 } else {
                     currentPrediction = data.prediction;
                     currentConfidence = (data.confidence * 100).toFixed(2);
-                    currentRecommendation = getRecommendation(data.prediction);
-                    
+
+                    // 生成推薦建議
+                    currentRecommendation = getRecommendation(currentPrediction);
+
+                    // 獲取推薦產品列表
+                    productRecommendations = data.recommendations.map(r => `${r.name} - $${r.price}`).join('\n');
+
                     document.getElementById('result').textContent = '預測結果: ' + currentPrediction;
                     document.getElementById('confidence').textContent = '準確度: ' + currentConfidence + '%';
-                    document.getElementById('recommendation').textContent = '建議:\n ' + currentRecommendation;
+
+                    document.getElementById('recommend-btn').style.display = 'inline-block';
                     document.getElementById('download-btn').style.display = 'inline-block';
                 }
             })
             .catch(error => {
                 document.getElementById('result').textContent = '錯誤: ' + error;
+                document.getElementById('recommend-btn').style.display = 'none';
                 document.getElementById('download-btn').style.display = 'none';
             });
+        };
+
+        document.getElementById('recommend-btn').onclick = function() {
+            const recommendationElement = document.getElementById('recommendation');
+            recommendationElement.textContent = currentRecommendation + '\n\n推薦產品:\n' + productRecommendations;
+            recommendationElement.style.display = 'block';
         };
 
         function getRecommendation(prediction) {
@@ -155,12 +198,11 @@
             const rec = recommendations[prediction];
             if (!rec) return '建議諮詢專業醫生進行進一步診斷。';
 
-            let result = `\n您的膚質類型：${rec.label}\n\n`;
-            result += "推薦成分：\n";
+            let result = `\n您的膚質類型：${rec.label}\n\n推薦成分：\n`;
             rec.recommended_ingredients.forEach(ingredient => {
                 result += `• ${ingredient}\n`;
             });
-            
+
             result += "\n保養建議：\n";
             rec.additional_care.forEach(care => {
                 result += `• ${care}\n`;
@@ -306,7 +348,7 @@
                 pdf.save('肌膚分析報告.pdf');
             } catch (error) {
                 console.error('Error generating PDF:', error);
-                alert('生成PDF時發生錯誤，請稍後再試。');
+                alert('生成PDF時發生錯誤請稍後再試。');
             }
         }
     </script>

@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 from torchvision import transforms
 from PIL import Image
+import sqlite3
 from data_and_model.models.model import SkinClassifier
 
 app = Flask(__name__)
@@ -24,7 +25,31 @@ def load_model():
     model.eval()
     return model
 
-app = Flask(__name__)
+def get_recommendations(skin_type, min_price=None, max_price=None):
+    # 連接到 SQLite 資料庫
+    conn = sqlite3.connect('skincare.db')
+    cursor = conn.cursor()
+    print(cursor)
+
+    # 基本查詢語句
+    query = "SELECT name, price FROM products WHERE type = ?"
+    params = [skin_type]
+
+    # 根據篩選條件調整查詢
+    if min_price is not None:
+        query += " AND price >= ?"
+        params.append(min_price)
+
+    if max_price is not None:
+        query += " AND price <= ?"
+        params.append(max_price)
+
+    cursor.execute(query, params)
+    results = cursor.fetchall()
+    conn.close()
+
+    # 返回產品推薦
+    return [{'name': row[0], 'price': row[1]} for row in results]
 
 # 設置設備
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -76,10 +101,18 @@ def predict():
         prediction = class_names[result]
         chinese_prediction = chinese_names[prediction]
 
+        # 獲取價錢篩選條件
+        min_price = request.form.get('min_price', type=float)
+        max_price = request.form.get('max_price', type=float)
+
+        # 獲取推薦產品
+        recommendations = get_recommendations(prediction, min_price, max_price)
+
         return jsonify({
             'prediction': prediction,
             'chinese': chinese_prediction,
-            'confidence': float(confidence_score)
+            'confidence': float(confidence_score),
+            'recommendations': recommendations
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 500

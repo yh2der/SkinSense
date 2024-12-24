@@ -71,6 +71,7 @@ pip install -r requirements.txt
 ![alt](/data_and_model/current_best/confusion_matrix_mob.png)
 
 ## Demo
+[Demo Video](https://youtu.be/C9M7EKSP6MQ)
 
 ### 首頁 
 ![alt text](image.png)

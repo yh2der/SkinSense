@@ -4,353 +4,170 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkinSense</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .preview-box {
+            aspect-ratio: 4/3;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .loading-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>SkinSense</h1>
-        <div class="upload-section">
-            <form id="upload-form">
-                <div class="file-input-container">
-                    <label for="image-input" class="custom-file-upload">
-                        選擇圖片
-                    </label>
-                    <input type="file" id="image-input" accept="image/*">
-                </div>
-                <div class="price-input-container">
-                    <label for="min-price">最低價錢：</label>
-                    <input type="number" id="min-price" placeholder="0">
-
-                    <label for="max-price">最高價錢：</label>
-                    <input type="number" id="max-price" placeholder="10000">
-                </div>
-                <button type="submit">開始分析</button>
-            </form>
-            <button type="button" id="recommend-btn" style="display: none;">推薦產品</button>
-            <button type="button" id="download-btn" style="display: none;" onclick="generatePDF()">下載報告</button>
-            <button type="button" id="refresh-btn">重整頁面</button>
-
+<body class="bg-gradient-to-b from-indigo-50 to-white min-h-screen">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay hidden">
+        <div class="loading-content">
+            <div class="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+                <div class="w-1/2 h-full bg-indigo-500 animate-pulse"></div>
+            </div>
+            <p class="text-gray-600">分析中，請稍候...</p>
         </div>
-        <div class="preview-section">
-            <img id="preview-image" style="display: none;">
-        </div>
-        <div class="result-section">
-            <p id="result"></p>
-            <p id="confidence"></p>
-            <p id="recommendation" style="display: none;"></p>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <div class="text-center space-y-8">
+            <h1 class="text-4xl font-bold text-indigo-600">SkinSense</h1>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button type="button" id="view-all-products" onclick="window.location.href='/products'" 
+                        class="flex items-center justify-center space-x-2 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                    <span>查看所有產品</span>
+                </button>
+                
+                <button type="button" id="refresh-btn" onclick="window.location.reload()" 
+                        class="flex items-center justify-center space-x-2 bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                    <span>重整頁面</span>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <form id="upload-form" class="space-y-4">
+                    <div class="file-input-container">
+                        <input type="file" id="image-input" accept="image/*" class="hidden">
+                        <label for="image-input" 
+                               class="inline-flex items-center justify-center space-x-2 bg-indigo-500 text-white px-6 py-3 rounded-lg hover:bg-indigo-600 transition-colors cursor-pointer">
+                            <span>選擇圖片</span>
+                        </label>
+                    </div>
+
+                    <div class="preview-box border-2 border-dashed border-gray-300 rounded-lg bg-white" id="preview-container">
+                        <div id="empty-state" class="w-full h-full flex flex-col items-center justify-center p-8">
+                            <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            <p class="mt-4 text-gray-500">請選擇照片進行分析</p>
+                        </div>
+                        <img id="preview-image" class="w-full h-full object-contain hidden" alt="Preview">
+                    </div>
+
+                    <button type="submit" 
+                            class="flex items-center justify-center space-x-2 bg-gray-300 text-gray-500 px-6 py-3 rounded-lg w-48 cursor-not-allowed mx-auto" 
+                            id="submit-button"
+                            disabled>
+                        <span>開始分析</span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
     <script>
-        // 先載入中文字體
-        async function loadChineseFont() {
-            const fontUrl = 'https://cdnjs.cloudflare.com/ajax/libs/notosans/1.0.1/NotoSansCJKtc-Regular.min.js';
-            const response = await fetch(fontUrl);
-            const fontData = await response.arrayBuffer();
-            return fontData;
-        }
-        document.getElementById('refresh-btn').onclick = function() {
-            location.reload(); // 重整頁面
-        };
+        const uploadForm = document.getElementById('upload-form');
+        const imageInput = document.getElementById('image-input');
+        const submitButton = document.getElementById('submit-button');
+        const previewImage = document.getElementById('preview-image');
+        const emptyState = document.getElementById('empty-state');
+        const loadingOverlay = document.getElementById('loading-overlay');
 
-        document.getElementById('image-input').onchange = function(e) {
+        // 預覽圖片
+        imageInput.onchange = function(e) {
             const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('preview-image');
-                img.src = e.target.result;
-                img.style.display = 'block';
+            if (file) {
+                if (file.size > 10 * 1024 * 1024) { // 10MB 限制
+                    alert('圖片大小不能超過 10MB');
+                    imageInput.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    emptyState.classList.add('hidden');
+                    previewImage.classList.remove('hidden');
+                    submitButton.disabled = false;
+                    submitButton.classList.remove('bg-gray-300', 'text-gray-500', 'cursor-not-allowed');
+                    submitButton.classList.add('bg-indigo-500', 'text-white', 'hover:bg-indigo-600');
+                }
+                reader.readAsDataURL(file);
             }
-            reader.readAsDataURL(file);
-        };
-        document.getElementById('image-input').onchange = function(e) {
-            const file = e.target.files[0];
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.getElementById('preview-image');
-                img.src = e.target.result;
-                img.style.display = 'block';
-            }
-            reader.readAsDataURL(file);
         };
 
-        let currentPrediction = '';
-        let currentConfidence = '';
-        let currentRecommendation = '';
-        let productRecommendations = '';
-
-        document.getElementById('upload-form').onsubmit = function(e) {
+        // 表單提交
+        uploadForm.onsubmit = async function(e) {
             e.preventDefault();
             const formData = new FormData();
-            const imageFile = document.getElementById('image-input').files[0];
-            const minPrice = document.getElementById('min-price').value;
-            const maxPrice = document.getElementById('max-price').value;
+            const imageFile = imageInput.files[0];
+            
+            if (!imageFile) {
+                alert('請選擇圖片');
+                return;
+            }
 
+            loadingOverlay.classList.remove('hidden');
             formData.append('image', imageFile);
-            if (minPrice) formData.append('min_price', minPrice);
-            if (maxPrice) formData.append('max_price', maxPrice);
 
-            fetch('/predict', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    document.getElementById('result').textContent = '錯誤: ' + data.error;
-                    document.getElementById('recommend-btn').style.display = 'none';
-                    document.getElementById('download-btn').style.display = 'none';
-                } else {
-                    currentPrediction = data.prediction;
-                    currentConfidence = (data.confidence * 100).toFixed(2);
-
-                    // 生成推薦建議
-                    currentRecommendation = getRecommendation(currentPrediction);
-
-                    // 獲取推薦產品列表
-                    productRecommendations = data.recommendations.map(r => `${r.name} - $${r.price}`).join('\n');
-
-                    document.getElementById('result').textContent = '預測結果: ' + currentPrediction;
-                    document.getElementById('confidence').textContent = '準確度: ' + currentConfidence + '%';
-
-                    document.getElementById('recommend-btn').style.display = 'inline-block';
-                    document.getElementById('download-btn').style.display = 'inline-block';
-                }
-            })
-            .catch(error => {
-                document.getElementById('result').textContent = '錯誤: ' + error;
-                document.getElementById('recommend-btn').style.display = 'none';
-                document.getElementById('download-btn').style.display = 'none';
-            });
-        };
-
-        document.getElementById('recommend-btn').onclick = function() {
-            const recommendationElement = document.getElementById('recommendation');
-            recommendationElement.textContent = currentRecommendation + '\n\n推薦產品:\n' + productRecommendations;
-            recommendationElement.style.display = 'block';
-        };
-
-        function getRecommendation(prediction) {
-            const recommendations = {
-                'acne': {
-                    label: "痘痘肌",
-                    recommended_ingredients: [
-                        "水楊酸（Salicylic Acid）",
-                        "過氧化苯（Benzoyl Peroxide）",
-                        "杜鵑花酸（Azelaic Acid）",
-                        "維他命 B3（Niacinamide）",
-                        "茶樹精油（Tea Tree Oil）"
-                    ],
-                    additional_care: [
-                        "避免過度清潔：每天清潔 1～2 次即可，減少皮膚屏障受損。",
-                        "選用溫和無皂基潔面產品，減少皮膚乾燥與泛紅。",
-                        "盡量選擇清爽、不阻塞毛孔（non-comedogenic）的護膚品或化妝品。"
-                    ]
-                },
-                'dry': {
-                    label: "乾性肌膚",
-                    recommended_ingredients: [
-                        "玻尿酸（Hyaluronic Acid）",
-                        "神經醯胺（Ceramide）",
-                        "鯊烯（Squalane）",
-                        "乳木果油（Shea Butter）",
-                        "維他命原 B5（Panthenol）"
-                    ],
-                    additional_care: [
-                        "使用溫和的清潔產品，避免過熱或過度清潔造成皮脂流失。",
-                        "每次洗澡後立刻擦上保溼乳霜，鎖住水分。",
-                        "夜間可使用滋潤型面霜或油類，加強保護力。"
-                    ]
-                },
-                'normal': {
-                    label: "中性肌膚",
-                    recommended_ingredients: [
-                        "維他命 B3（Niacinamide）",
-                        "維他命 C（Vitamin C）",
-                        "玻尿酸（Hyaluronic Acid）",
-                        "溫和型酸類（乳酸 Lactic Acid 等）",
-                        "舒緩型植萃（蘆薈、洋甘菊等）"
-                    ],
-                    additional_care: [
-                        "維持清潔與保濕的基本步驟即可，避免過度刺激。",
-                        "防曬仍是關鍵，可預防光老化與斑點產生。",
-                        "一週 1～2 次適度去角質，讓膚質維持光滑。"
-                    ]
-                },
-                'oily': {
-                    label: "油性肌膚",
-                    recommended_ingredients: [
-                        "維他命 B3（Niacinamide）",
-                        "水楊酸（Salicylic Acid）",
-                        "AHA/BHA（果酸/水楊酸等）",
-                        "高嶺土或黏土成分（Clay）",
-                        "綠茶精華（Green Tea Extract）"
-                    ],
-                    additional_care: [
-                        "選用清爽型保濕或凝膠狀保養品，避免高油量配方。",
-                        "清潔時可使用具控油功能的潔面產品，但避免過度清潔。",
-                        "防曬建議選擇輕盈、不易致粉刺的配方。"
-                    ]
-                }
-            };
-
-            const rec = recommendations[prediction];
-            if (!rec) return '建議諮詢專業醫生進行進一步診斷。';
-
-            let result = `\n您的膚質類型：${rec.label}\n\n推薦成分：\n`;
-            rec.recommended_ingredients.forEach(ingredient => {
-                result += `• ${ingredient}\n`;
-            });
-
-            result += "\n保養建議：\n";
-            rec.additional_care.forEach(care => {
-                result += `• ${care}\n`;
-            });
-
-            return result;
-        }
-
-        async function generatePDF() {
-            const { jsPDF } = window.jspdf;
-            
-            // 創建一個臨時的 canvas
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 595.28;  // A4 寬度 (72 dpi)
-            canvas.height = 841.89;  // A4 高度 (72 dpi)
-            
-            // 設置白色背景
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // 設置標題
-            ctx.fillStyle = 'black';
-            ctx.font = 'bold 24px sans-serif';  // 加大標題字體
-            ctx.textAlign = 'center';
-            ctx.fillText('肌膚分析報告', canvas.width/2, 50);
-            
-            // 重置文本對齊
-            ctx.textAlign = 'left';
-            
-            // 初始化 y 座標，增加標題後的間距
-            let y = 80;
-
-            // 添加分析日期
-            const date = new Date().toLocaleDateString('zh-TW');
-            ctx.font = '14px sans-serif';
-            ctx.fillText('分析日期：' + date, 40, y);
-            y += 30;  // 日期與圖片之間的間距
-
-            // 添加上傳的圖片
-            const img = document.getElementById('preview-image');
-            if (img && img.style.display !== 'none') {
-                try {
-                    await new Promise((resolve, reject) => {
-                        if (img.complete) {
-                            resolve();
-                        } else {
-                            img.onload = resolve;
-                            img.onerror = reject;
-                        }
-                    });
-                    
-                    const maxWidth = 350;  // 稍微縮小圖片寬度
-                    const maxHeight = 250;  // 稍微縮小圖片高度
-                    let width = img.width;
-                    let height = img.height;
-                    
-                    // 調整圖片大小保持比例
-                    if (width > maxWidth) {
-                        height = height * (maxWidth / width);
-                        width = maxWidth;
-                    }
-                    if (height > maxHeight) {
-                        width = width * (maxHeight / height);
-                        height = maxHeight;
-                    }
-                    
-                    // 將圖片置中
-                    const x = (canvas.width - width) / 2;
-                    ctx.drawImage(img, x, y, width, height);
-                    y += height + 30;  // 調整圖片後的間距
-                } catch (error) {
-                    console.error('Error loading image:', error);
-                }
-            }
-
-            // 添加準確度信息
-            ctx.font = '14px sans-serif';
-            ctx.fillText('準確度：' + currentConfidence + '%', 40, y);
-            y += 40;  // 增加準確度後的間距
-            
-            // 獲取推薦內容
-            const recommendationText = currentRecommendation;
-            if (recommendationText) {
-                const lines = recommendationText.split('\n');
-                
-                for (let line of lines) {
-                    line = line.trim();
-                    if (!line) continue;
-                    
-                    if (line.startsWith('您的膚質類型')) {
-                        ctx.font = 'bold 18px sans-serif';  // 加大膚質類型字體
-                        ctx.fillText(line, 40, y);
-                        y += 35;  // 調整膚質類型後的間距
-                    } 
-                    else if (line === '推薦成分：' || line === '保養建議：') {
-                        y += 15;  // 增加標題前的間距
-                        ctx.font = 'bold 16px sans-serif';
-                        ctx.fillText(line, 40, y);
-                        y += 25;  // 調整標題後的間距
-                    }
-                    else if (line.startsWith('•')) {
-                        ctx.font = '14px sans-serif';
-                        
-                        // 處理長文字換行
-                        const maxWidth = canvas.width - 120;  // 增加左右邊距
-                        let words = line;
-                        let currentLine = '';
-                        let charIndex = 0;
-                        
-                        while (charIndex < words.length) {
-                            let testLine = currentLine + words[charIndex];
-                            let metrics = ctx.measureText(testLine);
-                            
-                            if (metrics.width > maxWidth) {
-                                ctx.fillText(currentLine, 60, y);
-                                y += 22;  // 微調行間距
-                                currentLine = words[charIndex];
-                            } else {
-                                currentLine = testLine;
-                            }
-                            charIndex++;
-                        }
-                        
-                        if (currentLine) {
-                            ctx.fillText(currentLine, 60, y);
-                            y += 22;  // 保持一致的行間距
-                        }
-                    }
-                }
-            }
-
-            // 添加注意事項（移到底部固定位置）
-            ctx.font = '12px sans-serif';
-            ctx.fillStyle = '#666666';
-            ctx.fillText('※ 本報告僅供參考，如有特殊症狀請諮詢專業醫師。', 40, canvas.height - 40);
-            
-            // 創建PDF
             try {
-                const imgData = canvas.toDataURL('image/jpeg', 1.0);
-                const pdf = new jsPDF();
-                pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
-                pdf.save('肌膚分析報告.pdf');
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    throw new Error('上傳失敗');
+                }
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // 儲存結果到 localStorage
+                const results = {
+                    imageData: previewImage.src,
+                    prediction: data.prediction,
+                    chinese: data.chinese,
+                    confidence: data.confidence
+                };
+                localStorage.setItem('skinSenseResults', JSON.stringify(results));
+
+                // 重定向到結果頁面
+                window.location.href = '/results';
+                        
             } catch (error) {
-                console.error('Error generating PDF:', error);
-                alert('生成PDF時發生錯誤請稍後再試。');
+                loadingOverlay.classList.add('hidden');
+                alert('分析發生錯誤：' + error.message);
             }
-        }
+        };
     </script>
 </body>
 </html>

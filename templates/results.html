@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分析結果 - SkinSense</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .preview-box {
+            aspect-ratio: 4/3;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-indigo-50 to-white min-h-screen">
+    <div class="container mx-auto px-4 py-8 max-w-2xl">
+        <div class="text-center space-y-8">
+            <h1 class="text-4xl font-bold text-indigo-600">分析結果</h1>
+            
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button onclick="window.location.href='/'" 
+                        class="flex items-center justify-center space-x-2 bg-gray-500 text-white px-6 py-3 rounded-lg hover:bg-gray-600 transition-colors">
+                    <span>返回首頁</span>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div class="preview-box border-2 border-gray-300 rounded-lg bg-white">
+                    <img id="result-image" class="w-full h-full object-contain" alt="Analysis Image">
+                </div>
+
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <p id="result" class="text-lg font-medium text-gray-800"></p>
+                    <p id="confidence" class="text-sm text-gray-600 mt-2"></p>
+                    <p id="recommendation" class="mt-4 text-gray-800 whitespace-pre-line"></p>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                    <button id="recommend-btn" 
+                            class="flex items-center justify-center space-x-2 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">
+                        <span>推薦產品</span>
+                    </button>
+                    
+                    <button id="download-btn" onclick="generatePDF()"
+                            class="flex items-center justify-center space-x-2 bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition-colors">
+                        <span>下載報告</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 處理推薦內容
+        function getRecommendation(prediction) {
+            const recommendations = {
+                'acne': {
+                    label: "痘痘肌",
+                    recommended_ingredients: [
+                        "水楊酸（Salicylic Acid）",
+                        "過氧化苯（Benzoyl Peroxide）",
+                        "杜鵑花酸（Azelaic Acid）",
+                        "維他命 B3（Niacinamide）",
+                        "茶樹精油（Tea Tree Oil）"
+                    ],
+                    additional_care: [
+                        "避免過度清潔：每天清潔 1～2 次即可，減少皮膚屏障受損。",
+                        "選用溫和無皂基潔面產品，減少皮膚乾燥與泛紅。",
+                        "盡量選擇清爽、不阻塞毛孔（non-comedogenic）的護膚品或化妝品。"
+                    ]
+                },
+                'dry': {
+                    label: "乾性肌膚",
+                    recommended_ingredients: [
+                        "玻尿酸（Hyaluronic Acid）",
+                        "神經醯胺（Ceramide）",
+                        "鯊烯（Squalane）",
+                        "乳木果油（Shea Butter）",
+                        "維他命原 B5（Panthenol）"
+                    ],
+                    additional_care: [
+                        "使用溫和的清潔產品，避免過熱或過度清潔造成皮脂流失。",
+                        "每次洗澡後立刻擦上保溼乳霜，鎖住水分。",
+                        "夜間可使用滋潤型面霜或油類，加強保護力。"
+                    ]
+                },
+                'normal': {
+                    label: "中性肌膚",
+                    recommended_ingredients: [
+                        "維他命 B3（Niacinamide）",
+                        "維他命 C（Vitamin C）",
+                        "玻尿酸（Hyaluronic Acid）",
+                        "溫和型酸類（乳酸 Lactic Acid 等）",
+                        "舒緩型植萃（蘆薈、洋甘菊等）"
+                    ],
+                    additional_care: [
+                        "維持清潔與保濕的基本步驟即可，避免過度刺激。",
+                        "防曬仍是關鍵，可預防光老化與斑點產生。",
+                        "一週 1～2 次適度去角質，讓膚質維持光滑。"
+                    ]
+                },
+                'oily': {
+                    label: "油性肌膚",
+                    recommended_ingredients: [
+                        "維他命 B3（Niacinamide）",
+                        "水楊酸（Salicylic Acid）",
+                        "AHA/BHA（果酸/水楊酸等）",
+                        "高嶺土或黏土成分（Clay）",
+                        "綠茶精華（Green Tea Extract）"
+                    ],
+                    additional_care: [
+                        "選用清爽型保濕或凝膠狀保養品，避免高油量配方。",
+                        "清潔時可使用具控油功能的潔面產品，但避免過度清潔。",
+                        "防曬建議選擇輕盈、不易致粉刺的配方。"
+                    ]
+                }
+            };
+
+            const rec = recommendations[prediction];
+            if (!rec) return '建議諮詢專業醫生進行進一步診斷。';
+
+            let result = `\n您的膚質類型：${rec.label}\n\n推薦成分：\n`;
+            rec.recommended_ingredients.forEach(ingredient => {
+                result += `• ${ingredient}\n`;
+            });
+
+            result += "\n保養建議：\n";
+            rec.additional_care.forEach(care => {
+                result += `• ${care}\n`;
+            });
+
+            return result;
+        }
+
+        // 初始化頁面
+        window.onload = function() {
+            const results = JSON.parse(localStorage.getItem('skinSenseResults'));
+            if (!results) {
+                window.location.href = '/';
+                return;
+            }
+
+            // 顯示圖片
+            document.getElementById('result-image').src = results.imageData;
+
+            // 顯示分析結果
+            document.getElementById('result').textContent = '預測結果: ' + results.chinese;
+            document.getElementById('confidence').textContent = '準確度: ' + (results.confidence * 100).toFixed(2) + '%';
+            document.getElementById('recommendation').textContent = getRecommendation(results.prediction);
+
+            // 設置推薦按鈕
+            document.getElementById('recommend-btn').onclick = function() {
+                window.location.href = `/products?type=${results.prediction}`;
+            };
+        };
+
+        // 生成 PDF 報告
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            
+            // 創建臨時 canvas
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 595.28;  // A4 寬度 (72 dpi)
+            canvas.height = 841.89;  // A4 高度 (72 dpi)
+            
+            // 設置白色背景
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 設置標題
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('肌膚分析報告', canvas.width/2, 50);
+            
+            // 重置文本對齊
+            ctx.textAlign = 'left';
+            
+            // 初始化 y 座標
+            let y = 80;
+
+            // 添加分析日期
+            const date = new Date().toLocaleDateString('zh-TW');
+            ctx.font = '14px sans-serif';
+            ctx.fillText('分析日期：' + date, 40, y);
+            y += 30;
+
+            // 添加上傳的圖片
+            const img = document.getElementById('result-image');
+            if (img) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        if (img.complete) {
+                            resolve();
+                        } else {
+                            img.onload = resolve;
+                            img.onerror = reject;
+                        }
+                    });
+                    
+                    const maxWidth = 350;
+                    const maxHeight = 250;
+                    let width = img.width;
+                    let height = img.height;
+                    
+                    if (width > maxWidth) {
+                        height = height * (maxWidth / width);
+                        width = maxWidth;
+                    }
+                    if (height > maxHeight) {
+                        width = width * (maxHeight / height);
+                        height = maxHeight;
+                    }
+                    
+                    const x = (canvas.width - width) / 2;
+                    ctx.drawImage(img, x, y, width, height);
+                    y += height + 30;
+                } catch (error) {
+                    console.error('Error loading image:', error);
+                }
+            }
+
+            // 添加分析結果
+            const results = JSON.parse(localStorage.getItem('skinSenseResults'));
+            if (results) {
+                ctx.font = '14px sans-serif';
+                ctx.fillText('準確度：' + (results.confidence * 100).toFixed(2) + '%', 40, y);
+                y += 40;
+
+                const recommendationText = getRecommendation(results.prediction);
+                const lines = recommendationText.split('\n');
+                
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line) continue;
+                    
+                    if (line.startsWith('您的膚質類型')) {
+                        ctx.font = 'bold 18px sans-serif';
+                        ctx.fillText(line, 40, y);
+                        y += 35;
+                    } 
+                    else if (line === '推薦成分：' || line === '保養建議：') {
+                        y += 15;
+                        ctx.font = 'bold 16px sans-serif';
+                        ctx.fillText(line, 40, y);
+                        y += 25;
+                    }
+                    else if (line.startsWith('•')) {
+                        ctx.font = '14px sans-serif';
+                        const maxWidth = canvas.width - 120;
+                        let words = line;
+                        let currentLine = '';
+                        let charIndex = 0;
+                        
+                        while (charIndex < words.length) {
+                            let testLine = currentLine + words[charIndex];
+                            let metrics = ctx.measureText(testLine);
+                            
+                            if (metrics.width > maxWidth) {
+                                ctx.fillText(currentLine, 60, y);
+                                y += 22;
+                                currentLine = words[charIndex];
+                            } else {
+                                currentLine = testLine;
+                            }
+                            charIndex++;
+                        }
+                        
+                        if (currentLine) {
+                            ctx.fillText(currentLine, 60, y);
+                            y += 22;
+                        }
+                    }
+                }
+            }
+
+            // 添加注意事項
+            ctx.font = '12px sans-serif';
+            ctx.fillStyle = '#666666';
+            ctx.fillText('※ 本報告僅供參考，如有特殊症狀請諮詢專業醫師。', 40, canvas.height - 40);
+            
+            // 創建並下載 PDF
+            try {
+                const imgData = canvas.toDataURL('image/jpeg', 1.0);
+                const pdf = new jsPDF();
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdf.internal.pageSize.width, pdf.internal.pageSize.height);
+                pdf.save('肌膚分析報告.pdf');
+            } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('生成PDF時發生錯誤，請稍後再試。');
+            }
+        }
+    </script>
+</body>
+</html>

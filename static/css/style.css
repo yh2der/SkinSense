@@ -1,196 +1,217 @@
-/* 通用樣式 */
+/* 現代化通用樣式 */
 body {
-    font-family: 'Helvetica Neue', Arial, sans-serif;
-    background: linear-gradient(135deg, #ffd89b, #fcb69f);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #f6f8fd 0%, #f1f4f9 100%);
     margin: 0;
     padding: 0;
-    color: #4e342e;
-    line-height: 1.6;
+    color: #2d3748;
+    line-height: 1.7;
+    min-height: 100vh;
 }
 
 .container {
-    width: 90%;
-    max-width: 1200px;
-    margin: 40px auto;
-    padding: 20px;
+    width: 92%;
+    max-width: 1100px;
+    margin: 32px auto;
+    padding: 24px;
 }
 
-/* 標題樣式 */
+/* 現代化標題樣式 */
 h1 {
     text-align: center;
-    color: #ffffff;
-    font-size: 2.8rem;
-    margin-bottom: 40px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, #ffcc99, #ffb380); /* 淺橘色 */
-    padding: 10px;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    color: #2d3748;
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 48px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    position: relative;
 }
 
-/* 上傳區塊 */
+h1::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 2px;
+}
+
+/* 上傳區塊現代化設計 */
 .upload-section {
-    background: linear-gradient(135deg, #ffe6cc, #ffcc99);
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    padding: 30px;
-    margin-bottom: 50px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(148, 163, 184, 0.15);
+    padding: 32px;
+    margin-bottom: 48px;
     text-align: center;
+    border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .upload-section .file-input-container {
-    margin-bottom: 25px;
+    margin-bottom: 28px;
     text-align: center;
 }
 
 .custom-file-upload {
-    display: inline-block;
-    padding: 12px 25px;
-    background-color: #ff8c42;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: #fff;
-    font-weight: bold;
-    border-radius: 8px;
+    font-weight: 600;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
     font-size: 1rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
 }
 
 .custom-file-upload:hover {
-    background-color: #e67e22;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
 }
 
 input[type="file"] {
     display: none;
 }
 
-.price-input-container {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 25px;
-}
-
-input[type="number"] {
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #e0a06b;
-    width: 48%;
-    font-size: 1rem;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-input[type="number"]:focus {
-    border-color: #ff6f61;
-    box-shadow: 0 0 6px rgba(255, 111, 97, 0.4);
-    outline: none;
-}
-
-/* 按鈕樣式 */
+/* 按鈕現代化樣式 */
 button {
-    padding: 10px 20px;
+    padding: 12px 28px;
     border: none;
-    background-color: #ff7043;
+    background: linear-gradient(135deg, #667eea, #764ba2);
     color: #fff;
     font-size: 1rem;
-    font-weight: bold;
-    border-radius: 8px;
+    font-weight: 600;
+    border-radius: 12px;
     cursor: pointer;
-    width: auto; /* 按鈕寬度調整為自適應內容 */
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.25);
+    margin: 8px;
 }
 
 button:hover {
-    background-color: #f4511e;
     transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.35);
 }
 
 button[type="button"] {
-    background-color: #ff7043;
+    background: linear-gradient(135deg, #667eea, #764ba2);
 }
 
-button[type="button"]:hover {
-    background-color: #f4511e;
+#view-all-products {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+    box-shadow: 0 4px 12px rgba(72, 187, 120, 0.25);
 }
 
-/* 給不同按鈕設置背景顏色 */
-button.secondary {
-    background-color: #e64a19;
+#view-all-products:hover {
+    box-shadow: 0 6px 16px rgba(72, 187, 120, 0.35);
 }
 
-button.secondary:hover {
-    background-color: #d84315;
-}
-
-/* 預覽圖片區 */
+/* 預覽區塊現代化設計 */
 .preview-section {
     text-align: center;
     margin-bottom: 40px;
-    background: linear-gradient(135deg, #ffe6cc, #ffcc99); /* 調整為淺橘色 */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    color: #4e342e;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(148, 163, 184, 0.15);
+    border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 #preview-image {
     display: block;
     margin: 0 auto;
     max-width: 100%;
-    max-height: 300px;
-    margin-top: 20px;
+    max-height: 400px;
+    margin-top: 24px;
     border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 24px rgba(148, 163, 184, 0.15);
 }
 
-/* 結果區塊 */
+/* 結果區塊現代化設計 */
 .result-section {
-    background: linear-gradient(135deg, #fff2e6, #ffe6cc); /* 更淺的橘色 */
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-    padding: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(148, 163, 184, 0.15);
+    padding: 32px;
     text-align: center;
+    border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
 .result-section p {
-    font-size: 1.2rem;
-    margin: 15px 0;
-    color: #4e342e;
+    font-size: 1.1rem;
+    margin: 16px 0;
+    color: #2d3748;
+    line-height: 1.7;
 }
 
 #recommendation {
     white-space: pre-wrap;
-    margin-top: 20px;
-    padding: 20px;
-    border-radius: 10px;
-    font-size: 1.2rem;
-    font-weight: bold;
-    color: #4e342e;
+    margin-top: 24px;
+    padding: 24px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    color: #2d3748;
     text-align: left;
-    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(135deg, #f8c8a3, #eac5b1);
+    background: rgba(247, 250, 252, 0.8);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: inset 0 2px 4px rgba(148, 163, 184, 0.1);
 }
 
-/* 響應式設計 */
+/* 響應式設計現代化 */
 @media screen and (max-width: 768px) {
-    .price-input-container {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    input[type="number"] {
-        width: 90%;
-        margin-bottom: 10px;
+    .container {
+        width: 94%;
+        padding: 16px;
     }
 
     button {
         width: auto;
+        min-width: 120px;
     }
 
     h1 {
-        font-size: 2.2rem;
+        font-size: 2rem;
     }
+
+    .custom-file-upload {
+        padding: 10px 24px;
+    }
+
+    .upload-section,
+    .preview-section,
+    .result-section {
+        padding: 24px;
+    }
+}
+
+/* 動畫效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.upload-section,
+.preview-section,
+.result-section {
+    animation: fadeIn 0.6s ease-out;
 }

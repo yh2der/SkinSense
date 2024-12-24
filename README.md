@@ -9,7 +9,7 @@
     - 油肌
     - 正常肌
     - 乾肌
-- 給予能適用的保養品成份，而非直接推薦產品
+- 給予能適用的保養品成份、日常保養建議以及推薦適合使用者的商品
 
 ## 技術
 
@@ -38,9 +38,10 @@ pip install -r requirements.txt
 2. 開啟瀏覽器訪問：http://127.0.0.1:5000
 
 3. 使用步驟：
-    - 點擊「上傳圖片」按鈕選擇要分析的臉部照片
+    - 點擊「上傳圖片」按鈕選擇要分析的臉部照片 (首頁能瀏覽所有商品)
     - 系統會自動進行膚質分析
     - 顯示分析結果與建議的保養成分
+    - 可查看推薦商品
     - 可選擇下載詳細的 PDF 報告
 
 ## 資料集
@@ -50,7 +51,7 @@ pip install -r requirements.txt
 ## 模型資訊
 ### baseline
 
-利用預訓練模型 ResNet18、efficientNetB0、mobileNetV2，並且先比較這三種 baseline 效能，選擇方式是因為資料量不大，因此選擇參數量較小的模型來測試
+利用預訓練模型 ResNet18、efficientNetB0、mobileNetV2，並且先比較這三種 baseline 效能，選擇方式是因為資料量不大，加上未來有機會佈署在行動裝置上，因此選擇參數量較小的模型來測試
 
 #### [結果報告](/data_and_model/current_best/classification_report.txt)
 
@@ -68,13 +69,16 @@ pip install -r requirements.txt
 ![alt](/data_and_model/current_best/confusion_matrix_mob.png)
 
 ## Demo
-### 選擇您的臉部照片
 
-![alt text](/demo_pics/image.png)
+### 首頁 
+![alt text](image.png)
+#### 首頁可查看所有商品
+![alt text](/demo_pics/image-5.png)
+### 選擇照片後
 ![alt text](/demo_pics/image-1.png)
-
-### 進行分析並且提供結果下載成 PDF
-
+### 按下分析後
 ![alt text](/demo_pics/image-2.png)
+### 下載報告
+![alt text](/demo_pics/image-4.png)
+### 推薦適合產品
 ![alt text](/demo_pics/image-3.png)
-
